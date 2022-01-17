@@ -68,16 +68,16 @@ shinyServer(function(input, output) {
     )
     
     output$pfas_exp <- renderText({
-        return(includeHTML("WhatArePFAS.html"))
+        return(includeHTML("html/WhatArePFAS.html"))
     })
     output$health_effects <- renderText({
-        return(includeHTML("healtheffects.html"))
+        return(includeHTML("html/healtheffects.html"))
     })
     output$treatment <- renderText({
-        return(includeHTML("treatment.html"))
+        return(includeHTML("html/treatment.html"))
     })
     output$community <- renderText({
-        return(includeHTML("community.html"))
+        return(includeHTML("html/community.html"))
     })
     
     output$summary <- renderText({
@@ -277,11 +277,11 @@ shinyServer(function(input, output) {
     
     
     output$FAQ_text <- renderUI(
-        return(includeHTML("FAQ.html"))
+        return(includeHTML("html/FAQ.html"))
     )
     
     output$about <- renderUI(
-        return(includeHTML("about.html"))
+        return(includeHTML("html/about.html"))
     )
 
 })
