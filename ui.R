@@ -1,11 +1,5 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+### Author: AHz
+### Date: 1/17/2022
 
 
 library(shiny)
@@ -13,21 +7,17 @@ library(shinythemes)
 library(shinyWidgets)
 library(plotly)
 library(tidyverse)
-#library(ggforce)
-#library(gghighlight)
 library(lubridate)
 
 
-
-
-# Define UI for application that draws a histogram
 shinyUI(navbarPage("PFAS in MA Drinking Water", 
                    tabPanel("What's in my water?", 
                             fluidPage(
                                 theme = shinytheme("cerulean"),
+                                #tags$head(includeHTML(("html/google-analytics.html"))),
                                 
                                 # Application title
-                                titlePanel(""),
+                                #titlePanel(""),
                                 
                                 fluidRow(
                                     column(4,
