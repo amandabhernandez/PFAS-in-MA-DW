@@ -44,7 +44,8 @@ pfas_ma_clean <- pfas_ma %>%
                                TRUE ~ "Detect"),
            Result = case_when(Result == "ND" ~ "Not Detected",
                               TRUE ~ paste(Result, UOM)),
-           `Maximum Contaminant Level (MCL)` = case_when(`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" ~ 20),
+           MCL = case_when(`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" ~ 20),
+           `Maximum Contaminant Level (MCL)` = case_when(`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" ~ "20 NG/L"),
            year = fct_rev(factor(year(`Collected Date`))),
            Town = factor(Town))
 
@@ -89,10 +90,10 @@ shinyServer(function(input, output) {
         if(max(summary_dat$max_result[which(summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" &
                                             summary_dat$year == max(summary_dat$year))]) > 20)
         {
-            return(paste0("The most recent testing in", unique(str_to_title(summary_dat$Town)),
+            return(paste0("The most recent testing in ", unique(str_to_title(summary_dat$Town)),
                           " was conducted in ", max(summary_dat$year), ".",
                           "The state of Massachusetts standard for the sum of 
-                          the 6 PFAS chemicals is 20 ng/L. The highest level reported in ",
+                           6 PFAS chemicals (PFOS, PFOA, PFHxS, PFNA, PFHpA, and PFDA) is 20 ng/L. The highest level reported in ",
                           max(summary_dat$year), " in your town for the sum of 6 PFAS chemicals is: ", 
                           "<font color=\"#6A5ACD\"><b>",
                           max(summary_dat$max_result[which(summary_dat$year == 
@@ -113,8 +114,8 @@ shinyServer(function(input, output) {
         {
             return(paste0("The most recent testing in ", unique(str_to_title(summary_dat$Town)),
                           " was conducted in ", max(summary_dat$year), ".",
-                          "The state of Massachusetts standard for the sum of the 
-                          6 PFAS chemicals is 20 ng/L. The highest level reported in ",
+                          "The state of Massachusetts standard for the sum of 
+                          6 PFAS chemicals (PFOS, PFOA, PFHxS, PFNA, PFHpA, and PFDA) is 20 ng/L. The highest level reported in ",
                           max(summary_dat$year), " in your town for the sum of 6 PFAS chemicals is: ", 
                           "<font color=\"#6A5ACD\"><b>",
                           max(summary_dat$max_result[which(summary_dat$year == max(summary_dat$year) & 
@@ -131,8 +132,8 @@ shinyServer(function(input, output) {
         {
             return(paste0("The most recent testing in ", unique(str_to_title(summary_dat$Town)),
                           " was conducted in ", max(summary_dat$year), ".",
-                          "The state of Massachusetts standard for the sum of the 
-                          6 PFAS chemicals is 20 ng/L. The highest level reported in ",
+                          "The state of Massachusetts standard for the sum of  
+                          6 PFAS chemicals (PFOS, PFOA, PFHxS, PFNA, PFHpA, and PFDA) is 20 ng/L. The highest level reported in ",
                           max(summary_dat$year), " in your town for the sum of 6 
                           PFAS chemicals is: <font color=\"#6A5ACD\"><b>Not Detected </b></font>. 
                           This value is <b>below</b> the Massachusetts standard for the sum of 6 PFAS. ", 
@@ -163,8 +164,9 @@ shinyServer(function(input, output) {
         req(input$town)
         req(input$year)
         req(input$chemicals)
-        return(paste0("<span style='color: #CD5B45'>Hint: Hover over the graphs below to learn more! 
-               For more info, see the <a href = ",'#FAQ' ,">FAQ</a></span>"))
+        return(paste0("<span style='color: #CD5B45'>Hint: Hover over the graphs below to learn more! All results
+                      are shown in nanograms per liter (ng/L). For more info, 
+                      see the <a href = ",'#FAQ' ,">FAQ</a></span>"))
     })
     
     output$town <- renderUI({
@@ -213,7 +215,8 @@ shinyServer(function(input, output) {
                             label2 = `Collected Date`,
                             label3 = Result),
                         width = 0.25) +
-            geom_hline(aes(yintercept =  `Maximum Contaminant Level (MCL)`), 
+            geom_hline(aes(yintercept =  MCL,
+                           label4 = `Maximum Contaminant Level (MCL)`), 
                        color = "#6E8B3D", linetype="dashed") +
             coord_flip() + 
             scale_shape_manual(values=c(16, 1),
@@ -239,10 +242,10 @@ shinyServer(function(input, output) {
         
         
         if(length(unique(town_dat$`Chemical Name`)) < 2){
-            fig <- ggplotly(pfas_plot, height = 300, tooltip = c("label", "label2", "label3", "yintercept")) 
+            fig <- ggplotly(pfas_plot, height = 300, tooltip = c("label", "label2", "label3", "label4")) 
         }
         else{
-            fig <- ggplotly(pfas_plot, height = length(unique(town_dat$`Chemical Name`))*300, tooltip = c("label", "label2", "label3", "yintercept")) 
+            fig <- ggplotly(pfas_plot, height = length(unique(town_dat$`Chemical Name`))*300, tooltip = c("label", "label2", "label3", "label4")) 
         }
         
         
