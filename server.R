@@ -1,10 +1,9 @@
 ### Author: AHz
-### Date: 1/17/2022
+### Date published: 1/18/2022
 
 library(shiny)
 
 pfas_ma <- readxl::read_xlsx("Drinking Water.xlsx")
-#pfas_ma <- read_sheet("https://docs.google.com/spreadsheets/d/1Ojq2mB7xhCn77cG0eq02iXhD67ux0F3CmPrJe15Hr74/edit?usp=sharing")
 pfas_ma_clean <- pfas_ma %>% 
     filter(`Chemical Name` == c("PERFLUOROHEPTANOIC ACID-PFHPA",
                                 "PERFLUOROTETRADECANOIC ACID - PFTA",
@@ -49,9 +48,9 @@ pfas_ma_clean <- pfas_ma %>%
            year = fct_rev(factor(year(`Collected Date`))),
            Town = factor(Town))
 
-# Define server logic required to draw a histogram
-shinyServer(function(input, output) {
 
+shinyServer(function(input, output) {
+    
     dat <- reactive(
         pfas_ma_clean %>% 
             filter(year %in% c(input$year)) %>% 
@@ -76,8 +75,7 @@ shinyServer(function(input, output) {
     
     output$summary <- renderText({
         
-        if(!input$town %in% unique(levels(pfas_ma_clean$Town)))
-        {
+        if(!input$town %in% unique(levels(pfas_ma_clean$Town))){
             return("View recent PFAS testing by selecting your town in the dropdown box on the right.")
         }
         
@@ -85,23 +83,26 @@ shinyServer(function(input, output) {
         summary_dat <- pfas_ma_clean %>% 
             filter(Town %in% c(input$town)) %>% 
             mutate(year = as.numeric(as.character(year))) %>% 
-            #filter(`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard") %>% 
             group_by(Town, year, `Chemical Name`) %>% 
-            summarize(max_result = max(result)) #%>% 
-            #filter(year == max(year))
+            summarize(max_result = max(result)) 
         
         if(max(summary_dat$max_result[which(summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" &
                                             summary_dat$year == max(summary_dat$year))]) > 20)
         {
-            return(paste0("The most recent testing in", unique(str_to_title(summary_dat$Town))," was conducted in ", max(summary_dat$year), ".",
-                          "The state of Massachusetts standard for the sum of the 6 PFAS chemicals is 20 ng/L. 
-            The highest level reported in ",max(summary_dat$year), " in your town for the sum of 6 PFAS chemicals is: ", 
-            "<font color=\"#A020F0\"><b>",
-            max(summary_dat$max_result[which(summary_dat$year == 
-                                                 max(summary_dat$year) & 
-                                                 summary_dat$`Chemical Name` == 
-                                                 "Sum of 6 PFAS in Massachusetts DEP Standard")]),
-            " ng/L", "</b></font>",". This value <b>exceeds </b>the Massachusetts standard for the sum of 6 PFAS. ", "Look at the graphs on the right for more info or call your local water department."))  
+            return(paste0("The most recent testing in", unique(str_to_title(summary_dat$Town)),
+                          " was conducted in ", max(summary_dat$year), ".",
+                          "The state of Massachusetts standard for the sum of 
+                          the 6 PFAS chemicals is 20 ng/L. The highest level reported in ",
+                          max(summary_dat$year), " in your town for the sum of 6 PFAS chemicals is: ", 
+                          "<font color=\"#6A5ACD\"><b>",
+                          max(summary_dat$max_result[which(summary_dat$year == 
+                                                               max(summary_dat$year) & 
+                                                               summary_dat$`Chemical Name` == 
+                                                               "Sum of 6 PFAS in Massachusetts DEP Standard")]),
+                          " ng/L", "</b></font>",". This value <b>exceeds </b>the 
+                          Massachusetts standard for the sum of 6 PFAS. ", 
+                          "Look at the graphs on the right for more info or c
+                          all your local water department."))  
         }
         
         else if(max(summary_dat$max_result[which(summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" &
@@ -110,13 +111,17 @@ shinyServer(function(input, output) {
                                                  summary_dat$year == max(summary_dat$year))]) > 0
         ) 
         {
-            return(paste0("The most recent testing in ", unique(str_to_title(summary_dat$Town))," was conducted in ", max(summary_dat$year), ".",
-                          "The state of Massachusetts standard for the sum of the 6 PFAS chemicals is 20 ng/L. 
-            The highest level reported in ",max(summary_dat$year), " in your town for the sum of 6 PFAS chemicals is: ", 
-            "<font color=\"#A020F0\"><b>",
-            max(summary_dat$max_result[which(summary_dat$year == max(summary_dat$year) & 
-                                                 summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard")]),
-            " ng/L</b></font>. This value is <b>below</b> the Massachusetts standard for the sum of 6 PFAS. ", "Look at the graphs on the right for more info or call your local water department."))  
+            return(paste0("The most recent testing in ", unique(str_to_title(summary_dat$Town)),
+                          " was conducted in ", max(summary_dat$year), ".",
+                          "The state of Massachusetts standard for the sum of the 
+                          6 PFAS chemicals is 20 ng/L. The highest level reported in ",
+                          max(summary_dat$year), " in your town for the sum of 6 PFAS chemicals is: ", 
+                          "<font color=\"#6A5ACD\"><b>",
+                          max(summary_dat$max_result[which(summary_dat$year == max(summary_dat$year) & 
+                                                               summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard")]),
+                          " ng/L</b></font>. This value is <b>below</b> the 
+                          Massachusetts standard for the sum of 6 PFAS. ", 
+                          "Look at the graphs on the right for more info or call your local water department."))  
             
         }
         else if(max(summary_dat$max_result[which(summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" &
@@ -124,23 +129,25 @@ shinyServer(function(input, output) {
                 !is.infinite(max(summary_dat$max_result[which(summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" &
                                                               summary_dat$year == max(summary_dat$year))]))) 
         {
-            return(paste0("The most recent testing in ", unique(str_to_title(summary_dat$Town))," was conducted in ", max(summary_dat$year), ".",
-                          "The state of Massachusetts standard for the sum of the 6 PFAS chemicals is 20 ng/L. 
-            The highest level reported in ",max(summary_dat$year), " in your town for the sum of 6 PFAS chemicals is: <font color=\"#A020F0\"><b>Not Detected </b></font>. 
-            This value is <b>below</b> the Massachusetts standard for the sum of 6 PFAS. ", "Look at the graphs on the right for more info or call your local water department."))  
+            return(paste0("The most recent testing in ", unique(str_to_title(summary_dat$Town)),
+                          " was conducted in ", max(summary_dat$year), ".",
+                          "The state of Massachusetts standard for the sum of the 
+                          6 PFAS chemicals is 20 ng/L. The highest level reported in ",
+                          max(summary_dat$year), " in your town for the sum of 6 
+                          PFAS chemicals is: <font color=\"#6A5ACD\"><b>Not Detected </b></font>. 
+                          This value is <b>below</b> the Massachusetts standard for the sum of 6 PFAS. ", 
+                          "Look at the graphs on the right for more info or call your local water department."))  
             
         }
         
         else if(!summary_dat$`Chemical Name` %in% c("Sum of 6 PFAS in Massachusetts DEP Standard")){
-            return(paste0("The most recent testing for PFAS in ", unique(str_to_title(summary_dat$Town))," was conducted in ", max(summary_dat$year), ".",
-                          "The public water system in ", unique(str_to_title(summary_dat$Town))," did not report a value for the sum of 6 PFAS in the Massachusetts DEP standard. ", 
+            return(paste0("The most recent testing for PFAS in ", unique(str_to_title(summary_dat$Town)),
+                          " was conducted in ", max(summary_dat$year), ".",
+                          "The public water system in ", unique(str_to_title(summary_dat$Town)),
+                          " did not report a value for the sum of 6 PFAS in the Massachusetts DEP standard. ", 
                           "Look at the graphs on the right for more info or call your local water department."))
             
         }
-        
-        
-        
-        
         
         
     })
@@ -148,14 +155,16 @@ shinyServer(function(input, output) {
     
     
     output$instructions <- renderText({
-        return("Use the dropdown boxes below to select your town, the testing year, and PFAS chemicals of interest.")
+        return("Use the dropdown boxes below to select your town, the testing year, 
+               and PFAS chemicals of interest.")
     })
     
     output$hint <- renderText({
         req(input$town)
         req(input$year)
         req(input$chemicals)
-        return("<span style='color: #ff6600'>Hint: Hover over the graphs below to learn more! For more info, see the <a href = '#FAQ'>FAQ</a></span>")
+        return(paste0("<span style='color: #CD5B45'>Hint: Hover over the graphs below to learn more! 
+               For more info, see the <a href = ",'#FAQ' ,">FAQ</a></span>"))
     })
     
     output$town <- renderUI({
@@ -177,7 +186,7 @@ shinyServer(function(input, output) {
     
     output$chemicals <- renderUI({
         pickerInput("chemicals", "PFAS TO INCLUDE:", choices = as.list(unique(levels(pfas_ma_clean$`Chemical Name`))), 
-                    #selected = c("Sum of 6 PFAS in Massachusetts DEP Standard", "PFOS"),
+                    #selected = c("Sum of 6 PFAS in Massachusetts DEP Standard"),
                     options = list(
                         `actions-box` = TRUE,
                         title = "Select PFAS chemical(s)"), 
@@ -197,31 +206,34 @@ shinyServer(function(input, output) {
         req(input$chemicals)
         town_dat <- dat()
         pfas_plot <- ggplot(town_dat) + 
-            geom_jitter(aes(x = `year`, y = result,
+            geom_jitter(aes(x = as.factor(year), y = result,
                             color = town_select,
                             alpha = town_select,
                             label = `PWS Name`,
                             label2 = `Collected Date`,
                             label3 = Result),
                         width = 0.25) +
-            geom_hline(aes(yintercept =  `Maximum Contaminant Level (MCL)`), color = "navy", linetype="dashed") +
+            geom_hline(aes(yintercept =  `Maximum Contaminant Level (MCL)`), 
+                       color = "#6E8B3D", linetype="dashed") +
             coord_flip() + 
             scale_shape_manual(values=c(16, 1),
                                breaks = c("Detect", "ND"),
                                labels = c("Detect", "Not Detected"), 
                                guide = "none")+
             scale_alpha_manual(values = c(0.5, 1), guide="none") +
-            scale_color_manual(values = c("light blue", "purple"),
+            scale_color_manual(values = c("light blue", "#6A5ACD"),
                                breaks = c("fade","highlight"),
                                labels = c("Other towns in Massachusetts",
                                           "My town")) + 
-            scale_y_continuous(limits = c(-6, max(town_dat$result)))+
-            facet_wrap(~`Chemical Name`, ncol = 1, drop = TRUE, scales = "free_x") + 
+            scale_y_continuous(limits = c(min(pfas_ma_clean$result[which(pfas_ma_clean$year %in% c(input$year))]), 
+                                          max(pfas_ma_clean$result[which(pfas_ma_clean$year %in% c(input$year))])))+
+            facet_wrap(~`Chemical Name`, ncol = 1, scales = "free_x") + 
             ggthemes::theme_pander() +
             xlab("")+
-            ylab("Concentration (ng/L)")
+            ylab("Concentration (ng/L)") + 
         theme(panel.grid.major.y = element_blank(),
-              strip.text.x = element_text(color = "navy", face = "bold"),
+              panel.grid.major.x = element_line(color = "snow2"),
+              strip.text.x = element_text(color = "#556B2F", face = "bold"),
               strip.background = element_rect(fill = "white"),
               text = element_text(family = "Arial"))
         
@@ -250,7 +262,7 @@ shinyServer(function(input, output) {
                 
             }
         }
-
+        
         fig$x$layout$legend$title$text <- ""
         fig 
         
@@ -265,8 +277,8 @@ shinyServer(function(input, output) {
     
     output$dw_table <- DT::renderDataTable(
         dat_formatted() , options = list(pageLength = 25,
-                                        autoWidth = TRUE, 
-                                        order = list(list(2, 'desc')))
+                                         autoWidth = TRUE, 
+                                         order = list(list(2, 'desc')))
     )
     
     
@@ -277,8 +289,5 @@ shinyServer(function(input, output) {
     output$about <- renderUI(
         return(includeHTML("html/about.html"))
     )
-
+    
 })
-
-# library(rsconnect)
-# deployApp()
