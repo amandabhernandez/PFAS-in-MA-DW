@@ -8,16 +8,15 @@ library(shinyWidgets)
 library(plotly)
 library(tidyverse)
 library(lubridate)
-library(lemon)
 
 
 shinyUI(navbarPage("PFAS in MA Drinking Water", 
                    tabPanel("What's in my water?", 
                             fluidPage(
                                 theme = shinytheme("cerulean"),
-                                tags$head(includeHTML(("html/google-analytics.html"))),
+                                #tags$head(includeHTML(("html/google-analytics.html"))),
                                 fluidRow(
-                                    column(4,
+                                    column(5,
                                            wellPanel(h3("What are PFAS?"),
                                                      htmlOutput("pfas_exp"),
                                                      h3("Health Effects"),
@@ -31,7 +30,7 @@ shinyUI(navbarPage("PFAS in MA Drinking Water",
                                                      h4("In Your Community"),
                                                      htmlOutput("community"))
                                     ),
-                                    column(8,
+                                    column(7,
                                            h2("My PFAS Water Report"),
                                            uiOutput("instructions"),
                                            h4(""),
@@ -54,7 +53,6 @@ shinyUI(navbarPage("PFAS in MA Drinking Water",
                             
                    ),
                    tabPanel(title = "FAQ",
-                            id = "FAQ",
                             htmlOutput("FAQ_text")),
                    tabPanel("About",
                             h3("About this tool"),
