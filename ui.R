@@ -1,5 +1,5 @@
 ### Author: AHz
-### Date: 1/17/2022
+### Date published: 1/18/2022
 
 
 library(shiny)
@@ -8,17 +8,14 @@ library(shinyWidgets)
 library(plotly)
 library(tidyverse)
 library(lubridate)
+library(lemon)
 
 
 shinyUI(navbarPage("PFAS in MA Drinking Water", 
                    tabPanel("What's in my water?", 
                             fluidPage(
                                 theme = shinytheme("cerulean"),
-                                #tags$head(includeHTML(("html/google-analytics.html"))),
-                                
-                                # Application title
-                                #titlePanel(""),
-                                
+                                tags$head(includeHTML(("html/google-analytics.html"))),
                                 fluidRow(
                                     column(4,
                                            wellPanel(h3("What are PFAS?"),
@@ -41,7 +38,9 @@ shinyUI(navbarPage("PFAS in MA Drinking Water",
                                            fluidRow(column(6,uiOutput("town"),
                                                            uiOutput("chemicals")),
                                                     column(2, uiOutput("year"),
-                                                           actionButton("download", "Download Report", icon = icon("download")))),
+                                                           actionButton("download", 
+                                                                        "Download Report", 
+                                                                        icon = icon("download")))),
                                            
                                            tabsetPanel(
                                              tabPanel("Graphs", 
@@ -54,7 +53,8 @@ shinyUI(navbarPage("PFAS in MA Drinking Water",
                             )
                             
                    ),
-                   tabPanel("FAQ",
+                   tabPanel(title = "FAQ",
+                            id = "FAQ",
                             htmlOutput("FAQ_text")),
                    tabPanel("About",
                             h3("About this tool"),
