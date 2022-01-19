@@ -3,6 +3,7 @@
 
 library(shiny)
 
+#load data and clean
 pfas_ma <- readxl::read_xlsx("Drinking Water.xlsx")
 pfas_ma_clean <- pfas_ma %>% 
     filter(`Chemical Name` == c("PERFLUOROHEPTANOIC ACID-PFHPA",
@@ -49,9 +50,10 @@ pfas_ma_clean <- pfas_ma %>%
            year = fct_rev(factor(year(`Collected Date`))),
            Town = factor(Town))
 
-
+# run shiny server
 shinyServer(function(input, output) {
     
+    #filter water data based on user input
     dat <- reactive(
         pfas_ma_clean %>% 
             filter(year %in% c(input$year)) %>% 
@@ -60,7 +62,7 @@ shinyServer(function(input, output) {
                                            TRUE ~ "fade")
             )
     )
-    
+    ##### Add HTML files for left hand panel ####
     output$pfas_exp <- renderText({
         return(includeHTML("html/WhatArePFAS.html"))
     })
@@ -74,19 +76,22 @@ shinyServer(function(input, output) {
         return(includeHTML("html/community.html"))
     })
     
+    # create dynamic summary text based on town results
     output$summary <- renderText({
         
+        # show generic instruction text if user has not set "Town" yet
         if(!input$town %in% unique(levels(pfas_ma_clean$Town))){
             return("View recent PFAS testing by selecting your town in the dropdown box on the right.")
         }
         
-        
+        # get town-specific data: most recent test and highest level in that year
         summary_dat <- pfas_ma_clean %>% 
             filter(Town %in% c(input$town)) %>% 
             mutate(year = as.numeric(as.character(year))) %>% 
             group_by(Town, year, `Chemical Name`) %>% 
             summarize(max_result = max(result)) 
         
+        #start rules for summary text -- will indicate if highest level is above/below MCL 
         if(max(summary_dat$max_result[which(summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" &
                                             summary_dat$year == max(summary_dat$year))]) > 20)
         {
@@ -154,21 +159,22 @@ shinyServer(function(input, output) {
     })
     
     
-    
+    ##### Graphs ####
     output$instructions <- renderText({
-        return("Use the dropdown boxes below to select your town, the testing year, 
-               and PFAS chemicals of interest.")
+        return("<b>Use the dropdown boxes below to select your town, the testing year, 
+               and PFAS chemicals of interest.</b><br>")
     })
     
     output$hint <- renderText({
         req(input$town)
         req(input$year)
         req(input$chemicals)
-        return(paste0("<span style='color: #CD5B45'>Hint: Hover over the graphs below to learn more! All results
+        return(paste0("<br><span style='color: #CD5B45'>Hint: Hover over the graphs below to learn more! All results
                       are shown in nanograms per liter (ng/L). For more info, 
-                      see the <a href = ",'#FAQ' ,">FAQ</a></span>"))
+                      see the <a href = ",'#FAQ' ,">FAQ</a></span><br>"))
     })
     
+    #style inputs 
     output$town <- renderUI({
         selectizeInput("town", "TOWN:", choices = as.list(unique(levels(pfas_ma_clean$Town))),
                        #selected = "AYER",
@@ -195,18 +201,20 @@ shinyServer(function(input, output) {
                     multiple = TRUE)
     })
     
+    #download button not currently active, requires Rmd file that has not been set up yet
     observeEvent(input$download, {
         show_alert(title = "This feature is not currently available", text = "Stay tuned!")
     })
     
     
     
-    
+    # create interactive plot
     output$dw <- renderPlotly({
         req(input$town)
         req(input$year)
         req(input$chemicals)
         town_dat <- dat()
+
         pfas_plot <- ggplot(town_dat) + 
             geom_jitter(aes(x = as.factor(year), y = result,
                             color = town_select,
@@ -237,10 +245,9 @@ shinyServer(function(input, output) {
         theme(panel.grid.major.y = element_blank(),
               panel.grid.major.x = element_line(color = "snow2"),
               strip.text.x = element_text(color = "#556B2F", face = "bold"),
-              strip.background = element_rect(fill = "white"),
               text = element_text(family = "Arial"))
         
-        
+        #manually fix height of plot  
         if(length(unique(town_dat$`Chemical Name`)) < 2){
             fig <- ggplotly(pfas_plot, height = 300, tooltip = c("label", "label2", "label3", "label4")) 
         }
@@ -248,7 +255,7 @@ shinyServer(function(input, output) {
             fig <- ggplotly(pfas_plot, height = length(unique(town_dat$`Chemical Name`))*300, tooltip = c("label", "label2", "label3", "label4")) 
         }
         
-        
+        #manually fix the legend
         for(i in seq_along(1:length(unique(town_dat$`Chemical Name`)))){
             if(i > 1){
                 fig$x$data[[1]]$name <- "Other Towns in MA"
@@ -267,10 +274,11 @@ shinyServer(function(input, output) {
         }
         
         fig$x$layout$legend$title$text <- ""
+        #print figure
         fig 
         
     })
-    
+    ## add table of results 
     dat_formatted <- reactive(
         dat() %>% 
             filter(Town == input$town) %>% 
@@ -284,7 +292,7 @@ shinyServer(function(input, output) {
                                          order = list(list(2, 'desc')))
     )
     
-    
+    ##### Load HTML text on other pages ####
     output$FAQ_text <- renderUI(
         return(includeHTML("html/FAQ.html"))
     )
