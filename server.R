@@ -107,8 +107,8 @@ shinyServer(function(input, output) {
                                                                "Sum of 6 PFAS in Massachusetts DEP Standard")]),
                           " ng/L", "</b></font>",". This value <b>exceeds </b>the 
                           Massachusetts standard for the sum of 6 PFAS. ", 
-                          "Look at the graphs on the right for more info or c
-                          all your local water department."))  
+                          "Look at the graphs on the right for more info or call 
+                          your local water department."))  
         }
         
         else if(max(summary_dat$max_result[which(summary_dat$`Chemical Name` == "Sum of 6 PFAS in Massachusetts DEP Standard" &
@@ -171,7 +171,7 @@ shinyServer(function(input, output) {
         req(input$chemicals)
         return(paste0("<br><span style='color: #CD5B45'>Hint: Hover over the graphs below to learn more! All results
                       are shown in nanograms per liter (ng/L). For more info, 
-                      see the <a href = ",'#FAQ' ,">FAQ</a></span><br>"))
+                      see the <a href = ",'#FAQ' ,">FAQ</a></span><br><br>"))
     })
     
     #style inputs 
