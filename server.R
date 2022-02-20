@@ -7,7 +7,6 @@ library(shiny)
 pfas_ma <- readxl::read_xlsx("Drinking Water.xlsx")
 pfas_ma_clean <- pfas_ma %>% 
     filter(`Chemical Name` == c("PERFLUOROHEPTANOIC ACID-PFHPA",
-                                "PERFLUOROTETRADECANOIC ACID - PFTA",
                                 "PERFLUORONONANOIC ACID-PFNA",
                                 "PERFLUOROHEXANESULFONIC ACID-PFHXS",
                                 "PERFLUORODECANOIC ACID - PFDA",
@@ -23,7 +22,6 @@ pfas_ma_clean <- pfas_ma %>%
                                                                 "PERFLUORONONANOIC ACID-PFNA",
                                                                 "PERFLUOROHEPTANOIC ACID-PFHPA",
                                                                 "PERFLUORODECANOIC ACID - PFDA",
-                                                                "PERFLUOROTETRADECANOIC ACID - PFTA",
                                                                 "PERFLUOROHEXANOIC ACID - PFHXA",
                                                                 "PERFLUOROBUTANESULFONIC ACID-PFBS"
     ),
@@ -34,7 +32,6 @@ pfas_ma_clean <- pfas_ma %>%
                "PFNA",
                "PFHpA",
                "PFDA",
-               "PFTA",
                "PFHxA",
                "PFBS"
     ))) %>% 
@@ -175,13 +172,23 @@ shinyServer(function(input, output) {
     })
     
     #style inputs 
+    # output$town <- renderUI({
+    #     selectizeInput("town", "TOWN:", choices = as.list(unique(levels(pfas_ma_clean$Town))),
+    #                    #selected = "AYER",
+    #                    options = list(placeholder = 'Please select an option below',
+    #                                   onInitialize = I('function() { this.setValue(""); }')),
+    #                    multiple = FALSE)
+    # })
+    
     output$town <- renderUI({
-        selectizeInput("town", "TOWN:", choices = as.list(unique(levels(pfas_ma_clean$Town))),
-                       #selected = "AYER",
-                       options = list(placeholder = 'Please select an option below',
-                                      onInitialize = I('function() { this.setValue(""); }')),
-                       multiple = FALSE)
+        pickerInput("town", "TOWN:", choices = as.list(unique(levels(pfas_ma_clean$Town))), 
+                    #selected = "AYER",
+                    options = list(
+                        `actions-box` = TRUE,
+                        title = "Select town"), 
+                    multiple = FALSE)
     })
+    
     
     output$year <- renderUI({
         pickerInput("year", "YEAR:", choices = as.list(unique(levels(pfas_ma_clean$year))), 
