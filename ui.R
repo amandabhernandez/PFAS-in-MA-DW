@@ -15,8 +15,9 @@ shinyUI(navbarPage("PFAS in MA Drinking Water",
                             fluidPage(
                               #set theme
                               theme = shinytheme("cerulean"),
+                              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")),
                               #add analytics
-                              tags$head(includeHTML(("html/google-analytics.html"))),
+                              #tags$head(includeHTML(("html/google-analytics.html"))),
                               fluidRow(
                                 column(5,
                                        #add panel with text on the left side of the page
@@ -28,9 +29,7 @@ shinyUI(navbarPage("PFAS in MA Drinking Water",
                                                  htmlOutput("summary"),
                                                  h3("What can I do?"),
                                                  p("There are many steps you can take to reduce your exposure to PFAS."),
-                                                 h4("Water Treatment"),
                                                  htmlOutput("treatment"),
-                                                 h4("In Your Community"),
                                                  htmlOutput("community"))
                                 ),
                                 #add input options 
@@ -59,5 +58,4 @@ shinyUI(navbarPage("PFAS in MA Drinking Water",
                    tabPanel(title = "FAQ",
                             htmlOutput("FAQ_text")),
                    tabPanel("About",
-                            h3("About this tool"),
                             htmlOutput("about"))))
