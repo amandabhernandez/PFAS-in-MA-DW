@@ -1,6 +1,6 @@
- * { font-size: 18px }
+ * { font-size: 14px }
  h5 {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 div.wrap {
@@ -11,4 +11,15 @@ div.wrap {
 
 do{
     color:"#009ACD";
+}
+
+.more span {
+  color:red;
+}
+
+.morecontent span {
+    display: none;
+}
+.morelink {
+    display: block;
 }
